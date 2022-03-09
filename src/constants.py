@@ -38,6 +38,7 @@ OPTIONS_STREAM = {
 
 COLUMNS = [
               'time',
+              'gender',
               'age',
               'country',
           ] + COLUMNS_ACT + [
@@ -61,3 +62,33 @@ COLUMNS = [
           ] + COLUMNS_STREAM + [
               'comments',
           ]
+
+LABELS_ACT = """
+I write about music on social media
+I keep track of new music that I come across (e.g. new artists or recordings)
+I read or search the internet for things related to music
+I do music-related activities in my free time
+I try to find out more about music I’m not familiar with
+I pick certain music to motivate or excite me
+I listen to music to trigger the associated memories / put myself into associated  mood
+""".strip().split('\n')
+
+LABELS_STREAM = """
+There are many options for music exploration and discovery
+I am satisfied with the options for music exploration and discovery that are available
+The way terms "music exploration and discovery" are used aligns well with my perception
+I would like more functionality to rediscover my library
+I would like to interact with my library in more ways than current systems allow
+I can usually quickly find the music that I want to listen to
+I have discovered music that is different from what I usually listen to through recommendations
+There should be more recommendations outside of my comfort zone
+It is easy for me to get an overview and manage my library
+""".strip().split('\n')
+
+OPTIONS_FREQUENCY = [
+    'Every day',
+    'Once or several times per week',
+    'Once or several times per month',
+    'Once or several times per year',
+    'Never or almost never'
+]
