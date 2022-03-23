@@ -92,3 +92,34 @@ OPTIONS_FREQUENCY = [
     'Once or several times per year',
     'Never or almost never'
 ]
+
+KEYWORDS_REDISCOVER = {
+    'forgetting': ['forg', 'memory', 'remember'],
+    'algorithm is prioritizing recent tracks': ['shuffle', 'algorithm'],
+    'lack of time': ['time'],
+    'laziness': ['laz'],
+    'needs specific mood': ['mood'],
+    'prioritize discovery': ['new'],
+    'exhausted': ['too']
+}
+
+OPTIONS_TAGS_PLAYLISTS = {
+    # 'None': 'I don''t typically listen to playlists',
+    'Genre/style': 'Based on genre / style (e.g. rock, pop, metal, reggae, deep house, symphonic metal)',
+    'Culture/location': 'Based on culture / country of origin, location / regional scene (e.g. oriental metal, '
+                        'J-Pop, bands from Barcelona)',
+    'Mood/theme': 'Based on moods / themes (e.g. chill, party, sleep, workout, melancholic)',
+    'Instrument': 'Based on instrumentation (e.g. female vocal, electric guitar, sax, electronic synths)',
+    'Decade': 'Based on decade (e.g. 80s, 90s, 00s, 10s)',
+    'Metadata': 'Based on editorial metadata (e.g. artists, music producers, recording labels)'
+}
+
+OPTIONS_TAGS_EXPLORE = {
+    'Genre/style': 'Genre / style (e.g. rock, pop, metal, reggae, deep house, symphonic metal)',
+    'Culture/location': 'Culture / country of origin, location / regional scene (e.g. oriental metal, J-Pop, '
+                        'bands from Barcelona)',
+    'Mood/theme': 'Moods / themes (e.g. chill, party, sleep, workout, melancholic)',
+    'Instrument': 'Instruments (e.g. female vocal, electric guitar, sax, electronic synths)',
+    'Decade': 'Decade (e.g. 80s, 90s, 00s, 10s)',
+    'Metadata': 'Editorial metadata (e.g. relations between artists, music producers, recording labels)'
+}

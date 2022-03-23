@@ -9,7 +9,7 @@ from matplotlib import rcParams
 from plot_likert import plot_likert
 
 from constants import (COLUMNS, COLUMNS_ACT, COLUMNS_STREAM, LABELS_ACT, LABELS_STREAM, OPTIONS_ACT, OPTIONS_FREQUENCY,
-                       OPTIONS_STREAM)
+                       OPTIONS_STREAM, OPTIONS_TAGS_EXPLORE, OPTIONS_TAGS_PLAYLISTS)
 
 FLOAT_FORMAT = '{:0.2f}'.format
 
@@ -44,6 +44,18 @@ def histogram(df: pd.DataFrame, columns: list[str], column_labels: list[str], va
     plt.savefig(output_file, bbox_inches='tight')
 
 
+def _reverse(_dict: dict) -> dict:
+    return {v: k for k, v in _dict.items()}
+
+
+def count_mapped_values(df: pd.Series, values_dict: dict[str, str]) -> pd.Series:
+    counts = []
+    for value in values_dict.values():
+        counts.append(len(df[df.str.contains(value, regex=False)]))
+
+    return pd.Series(data=counts, index=values_dict.keys())
+
+
 def analyze(csv_file: Path, output_dir: Path, ext: str) -> None:
     rcParams['font.family'] = 'serif'
     rcParams['font.serif'] = 'Times New Roman'
@@ -67,8 +79,40 @@ def analyze(csv_file: Path, output_dir: Path, ext: str) -> None:
     df.replace(OPTIONS_ACT, inplace=True)
     df.replace(OPTIONS_STREAM, inplace=True)
 
-    print(mean_and_std(df, COLUMNS_ACT).to_latex(float_format=FLOAT_FORMAT))
+    # print(mean_and_std(df, COLUMNS_ACT).style(precision=2).to_latex())
     print(mean_and_std(df, COLUMNS_STREAM).to_latex(float_format=FLOAT_FORMAT))
+
+    # correlations between Likert questions
+    corr = df.corr()
+    corr.to_csv(output_dir / 'corr.csv', float_format=FLOAT_FORMAT)
+    plt.figure()
+    sns.heatmap(corr)
+    plt.savefig(output_dir / f'corr.{ext}', bbox_inches='tight')
+
+    # Number of people that provided different values for desire and actual rediscovery
+    print('Rediscovery mismatch: ', pd.value_counts(df['discover_re_desire'] != df['discover_re_actual']))
+
+    # Countries
+    unique_countries = df['country'].unique()
+    print(f'Unique countries {len(unique_countries)}: {unique_countries}')
+
+    # Categories that are mentioned for playlist search and discovery
+    playlist_counts = count_mapped_values(df['playlist_terms'], OPTIONS_TAGS_PLAYLISTS)
+    explore_counts = df['explore_terms'].value_counts().to_frame()
+    explore_counts.rename(index=_reverse(OPTIONS_TAGS_EXPLORE), inplace=True)
+    explore_counts = explore_counts[explore_counts.index.isin(OPTIONS_TAGS_EXPLORE.keys())]
+    counts_df = pd.concat([playlist_counts, explore_counts], axis=1)
+    counts_df.reset_index(inplace=True)
+    counts_df.columns = ['Terms', 'Playlist searching', 'Discovery/Exploration']
+    counts_df = counts_df.melt(id_vars='Terms')
+    plt.figure(figsize=[4, 3])
+    ax = sns.barplot(data=counts_df, x='Terms', y='value', hue='variable')
+    sns.despine(bottom=True, left=True)
+    ax.set(xlabel=None, ylabel=None)
+    ax.tick_params(left=False, bottom=False)
+    ax.get_legend().set_title(None)
+    plt.xticks(rotation=90)
+    plt.savefig(output_dir / f'terms.{ext}', bbox_inches='tight')
 
 
 if __name__ == '__main__':
