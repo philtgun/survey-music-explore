@@ -56,13 +56,14 @@ def count_mapped_values(df: pd.Series, values_dict: dict[str, str]) -> pd.Series
     return pd.Series(data=counts, index=values_dict.keys())
 
 
-def analyze(csv_file: Path, output_dir: Path, ext: str) -> None:
+def analyze(tsv_file: Path, output_dir: Path, ext: str) -> None:
+    # formatting
     rcParams['font.family'] = 'serif'
     rcParams['font.serif'] = 'Times New Roman'
 
-    df = pd.read_csv(csv_file, header=0, names=COLUMNS)
-    print(df.describe())
+    df = pd.read_csv(tsv_file, header=0, names=COLUMNS, delimiter='\t')
 
+    # output dir
     output_dir.mkdir(exist_ok=True, parents=True)
 
     # likert
@@ -72,31 +73,31 @@ def analyze(csv_file: Path, output_dir: Path, ext: str) -> None:
     # re- and discovery
     histogram(df,
               ['discover_new', 'discover_re_desire', 'discover_re_actual'],
-              ['Dicovery of new music', 'Rediscovery (desire)', 'Rediscovery (actual)'],
+              ['Discovery of new music', 'Rediscovery (desire)', 'Rediscovery (actual)'],
               OPTIONS_FREQUENCY,
               output_dir / f'freqs.{ext}')
 
     df.replace(OPTIONS_ACT, inplace=True)
     df.replace(OPTIONS_STREAM, inplace=True)
 
-    # print(mean_and_std(df, COLUMNS_ACT).style(precision=2).to_latex())
+    # table for latex
     print(mean_and_std(df, COLUMNS_STREAM).to_latex(float_format=FLOAT_FORMAT))
 
     # correlations between Likert questions
-    corr = df.corr()
+    corr = df[COLUMNS_ACT + COLUMNS_STREAM].corr()
     corr.to_csv(output_dir / 'corr.csv', float_format=FLOAT_FORMAT)
     plt.figure()
     sns.heatmap(corr)
     plt.savefig(output_dir / f'corr.{ext}', bbox_inches='tight')
 
-    # Number of people that provided different values for desire and actual rediscovery
+    # number of people that provided different values for desire and actual rediscovery
     print('Rediscovery mismatch: ', pd.value_counts(df['discover_re_desire'] != df['discover_re_actual']))
 
-    # Countries
+    # countries
     unique_countries = df['country'].unique()
     print(f'Unique countries {len(unique_countries)}: {unique_countries}')
 
-    # Categories that are mentioned for playlist search and discovery
+    # categories that are mentioned for playlist search and discovery
     playlist_counts = count_mapped_values(df['playlist_terms'], OPTIONS_TAGS_PLAYLISTS)
     explore_counts = df['explore_terms'].value_counts().to_frame()
     explore_counts.rename(index=_reverse(OPTIONS_TAGS_EXPLORE), inplace=True)
@@ -117,10 +118,10 @@ def analyze(csv_file: Path, output_dir: Path, ext: str) -> None:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('csv_file', type=Path, help='CSV file downloaded from google forms')
+    parser.add_argument('tsv_file', type=Path, help='TSV file downloaded from google forms')
     parser.add_argument('output_dir', type=Path, help='output directory for figures')
     parser.add_argument('--extension', type=str, default='png',
                         help='file type of generated figures, change it to pdf for vector')
     args = parser.parse_args()
 
-    analyze(args.csv_file, args.output_dir, args.extension)
+    analyze(args.tsv_file, args.output_dir, args.extension)
